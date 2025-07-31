@@ -1,1 +1,654 @@
-# leapscholar-brand-monitor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeapScholar Brand Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0px);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn.danger:hover {
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #95a5a6;
+            animation: blink 2s infinite;
+        }
+
+        .status-indicator.active {
+            background: #27ae60;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .dashboard {
+            padding: 30px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .sentiment-positive { color: #27ae60; }
+        .sentiment-negative { color: #e74c3c; }
+        .sentiment-neutral { color: #f39c12; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .mentions-feed, .trends-panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .mention-item {
+            padding: 20px 25px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .mention-item:hover {
+            background: #f8f9fa;
+        }
+
+        .mention-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .platform-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .platform-twitter { background: #1da1f2; }
+        .platform-reddit { background: #ff4500; }
+        .platform-news { background: #8e44ad; }
+        .platform-linkedin { background: #0077b5; }
+
+        .mention-text {
+            color: #2c3e50;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .mention-meta {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .sentiment-badge {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .trend-item {
+            padding: 15px 25px;
+            border-bottom: 1px solid #f1f3f4;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .trend-keyword {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .trend-count {
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .status {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LeapScholar Brand Monitor</h1>
+            <p>Real-time brand sentiment and mention tracking across the web</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startMonitoring()">Start Monitoring</button>
+            <button class="btn danger" onclick="stopMonitoring()">Stop Monitoring</button>
+            <button class="btn" onclick="refreshData()">Refresh Data</button>
+            <button class="btn" onclick="exportData()">Export Report</button>
+            
+            <div class="status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Inactive</span>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value sentiment-positive" id="totalMentions">0</div>
+                    <div class="metric-label">Total Mentions (24h)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value sentiment-positive" id="positiveMentions">0</div>
+                    <div class="metric-label">Positive Mentions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value sentiment-negative" id="negativeMentions">0</div>
+                    <div class="metric-label">Negative Mentions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value sentiment-neutral" id="neutralMentions">0</div>
+                    <div class="metric-label">Neutral Mentions</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="mentions-feed">
+                    <div class="panel-header">
+                        Recent Mentions
+                    </div>
+                    <div id="mentionsList">
+                        <div class="empty-state">
+                            <h3>No mentions yet</h3>
+                            <p>Click "Start Monitoring" to begin tracking LeapScholar mentions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trends-panel">
+                    <div class="panel-header">
+                        Trending Keywords
+                    </div>
+                    <div id="trendsList">
+                        <div class="empty-state">
+                            <h3>No trends yet</h3>
+                            <p>Trends will appear as data is collected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isMonitoring = false;
+        let monitoringInterval;
+        let mentions = [];
+        let trends = {};
+
+        // Sample data for demonstration
+        const sampleMentions = [
+            {
+                id: 1,
+                platform: 'twitter',
+                text: 'Just got accepted to my dream university with help from @LeapScholar! Their counselors are amazing 🎉',
+                sentiment: 'positive',
+                timestamp: new Date(Date.now() - 1000 * 60 * 15),
+                author: '@student_sarah',
+                engagement: 42
+            },
+            {
+                id: 2,
+                platform: 'reddit',
+                text: 'Has anyone used LeapScholar for study abroad applications? Looking for reviews.',
+                sentiment: 'neutral',
+                timestamp: new Date(Date.now() - 1000 * 60 * 45),
+                author: 'u/confused_student',
+                engagement: 8
+            },
+            {
+                id: 3,
+                platform: 'news',
+                text: 'LeapScholar announces new partnership with 50 international universities to expand study abroad opportunities.',
+                sentiment: 'positive',
+                timestamp: new Date(Date.now() - 1000 * 60 * 120),
+                author: 'Education Today',
+                engagement: 156
+            },
+            {
+                id: 4,
+                platform: 'linkedin',
+                text: 'Proud to work with LeapScholar team on transforming international education access for Indian students.',
+                sentiment: 'positive',
+                timestamp: new Date(Date.now() - 1000 * 60 * 180),
+                author: 'Prof. Academic',
+                engagement: 23
+            }
+        ];
+
+        const sampleTrends = {
+            'study abroad': 15,
+            'university applications': 12,
+            'counseling': 8,
+            'scholarships': 6,
+            'visa guidance': 5
+        };
+
+        function startMonitoring() {
+            if (isMonitoring) return;
+            
+            isMonitoring = true;
+            document.getElementById('statusIndicator').classList.add('active');
+            document.getElementById('statusText').textContent = 'Active';
+            
+            // Simulate initial data load
+            setTimeout(() => {
+                mentions = [...sampleMentions];
+                trends = {...sampleTrends};
+                updateDashboard();
+            }, 1000);
+            
+            // Set up periodic updates
+            monitoringInterval = setInterval(() => {
+                // Simulate new mentions
+                if (Math.random() > 0.7) {
+                    addRandomMention();
+                }
+                updateDashboard();
+            }, 30000); // Check every 30 seconds
+            
+            showLoading();
+        }
+
+        function stopMonitoring() {
+            isMonitoring = false;
+            document.getElementById('statusIndicator').classList.remove('active');
+            document.getElementById('statusText').textContent = 'Inactive';
+            
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+            }
+        }
+
+        function refreshData() {
+            if (!isMonitoring) {
+                alert('Please start monitoring first');
+                return;
+            }
+            
+            showLoading();
+            
+            // Simulate data refresh
+            setTimeout(() => {
+                addRandomMention();
+                updateDashboard();
+            }, 1500);
+        }
+
+        function exportData() {
+            if (mentions.length === 0) {
+                alert('No data to export. Start monitoring first.');
+                return;
+            }
+            
+            const data = {
+                exportDate: new Date().toISOString(),
+                totalMentions: mentions.length,
+                sentimentBreakdown: getSentimentCounts(),
+                mentions: mentions,
+                trends: trends
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leapscholar-brand-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function addRandomMention() {
+            const platforms = ['twitter', 'reddit', 'linkedin', 'news'];
+            const sentiments = ['positive', 'negative', 'neutral'];
+            const sampleTexts = [
+                'LeapScholar helped me get into my target university! Highly recommend their services.',
+                'Thinking about using LeapScholar for my grad school applications. Any experiences?',
+                'LeapScholar\'s new AI-powered matching system is revolutionary for study abroad planning.',
+                'Great webinar by LeapScholar on scholarship opportunities. Very informative!',
+                'LeapScholar team was super responsive to all my queries during the application process.',
+                'New partnership announcement from LeapScholar opens doors to more European universities.'
+            ];
+            
+            const newMention = {
+                id: Date.now(),
+                platform: platforms[Math.floor(Math.random() * platforms.length)],
+                text: sampleTexts[Math.floor(Math.random() * sampleTexts.length)],
+                sentiment: sentiments[Math.floor(Math.random() * sentiments.length)],
+                timestamp: new Date(),
+                author: `@user${Math.floor(Math.random() * 1000)}`,
+                engagement: Math.floor(Math.random() * 100)
+            };
+            
+            mentions.unshift(newMention);
+            
+            // Keep only last 50 mentions
+            if (mentions.length > 50) {
+                mentions = mentions.slice(0, 50);
+            }
+            
+            // Update trends
+            const words = newMention.text.toLowerCase().split(' ');
+            words.forEach(word => {
+                if (word.length > 4) {
+                    trends[word] = (trends[word] || 0) + 1;
+                }
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('mentionsList').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Fetching latest mentions...</p>
+                </div>
+            `;
+        }
+
+        function updateDashboard() {
+            const sentimentCounts = getSentimentCounts();
+            
+            document.getElementById('totalMentions').textContent = mentions.length;
+            document.getElementById('positiveMentions').textContent = sentimentCounts.positive;
+            document.getElementById('negativeMentions').textContent = sentimentCounts.negative;
+            document.getElementById('neutralMentions').textContent = sentimentCounts.neutral;
+            
+            renderMentions();
+            renderTrends();
+        }
+
+        function getSentimentCounts() {
+            return mentions.reduce((acc, mention) => {
+                acc[mention.sentiment]++;
+                return acc;
+            }, { positive: 0, negative: 0, neutral: 0 });
+        }
+
+        function renderMentions() {
+            const container = document.getElementById('mentionsList');
+            
+            if (mentions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No mentions yet</h3>
+                        <p>Click "Start Monitoring" to begin tracking LeapScholar mentions</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = mentions.map(mention => `
+                <div class="mention-item">
+                    <div class="mention-header">
+                        <span class="platform-badge platform-${mention.platform}">${mention.platform.toUpperCase()}</span>
+                        <span class="sentiment-badge sentiment-${mention.sentiment}">${mention.sentiment.toUpperCase()}</span>
+                    </div>
+                    <div class="mention-text">${mention.text}</div>
+                    <div class="mention-meta">
+                        <span>${mention.author} • ${formatTimeAgo(mention.timestamp)}</span>
+                        <span>${mention.engagement} engagements</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTrends() {
+            const container = document.getElementById('trendsList');
+            const sortedTrends = Object.entries(trends)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+            
+            if (sortedTrends.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No trends yet</h3>
+                        <p>Trends will appear as data is collected</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sortedTrends.map(([keyword, count]) => `
+                <div class="trend-item">
+                    <span class="trend-keyword">${keyword}</span>
+                    <span class="trend-count">${count}</span>
+                </div>
+            `).join('');
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Initialize dashboard
+        updateDashboard();
+    </script>
+</body>
+</html># leapscholar-brand-monitor
